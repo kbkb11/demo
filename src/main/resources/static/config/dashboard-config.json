@@ -1,0 +1,138 @@
+{
+  "baseUrl": "",
+  "panels": [
+    {
+      "id": "overall",
+      "title": "整体成绩概览",
+      "description": "平均、最高、最低与及格率等关键指标。",
+      "endpoint": "/api/analysis/overall",
+      "cards": [
+        {
+          "label": "平均分",
+          "valuePath": "average",
+          "precision": 2
+        },
+        {
+          "label": "最高分",
+          "valuePath": "highest",
+          "precision": 1
+        },
+        {
+          "label": "最低分",
+          "valuePath": "lowest",
+          "precision": 1
+        },
+        {
+          "label": "及格率",
+          "valuePath": "passRate",
+          "precision": 2,
+          "suffix": "%"
+        }
+      ],
+      "chart": {
+        "type": "bar",
+        "title": "成绩区间分布",
+        "dataPath": "distribution",
+        "labels": [
+          "0-59",
+          "60-69",
+          "70-79",
+          "80-89",
+          "90-100"
+        ],
+        "colors": [
+          "#f87171",
+          "#fb923c",
+          "#fbbf24",
+          "#34d399",
+          "#60a5fa"
+        ]
+      }
+    },
+    {
+      "id": "distribution",
+      "title": "成绩占比",
+      "description": "使用圆环图呈现五个分数等级的分布比例。",
+      "endpoint": "/api/analysis/overall",
+      "chart": {
+        "type": "doughnut",
+        "title": "各成绩段占比",
+        "dataPath": "distribution",
+        "labels": [
+          "0-59",
+          "60-69",
+          "70-79",
+          "80-89",
+          "90-100"
+        ],
+        "colors": [
+          "#fb7185",
+          "#f97316",
+          "#facc15",
+          "#22c55e",
+          "#2563eb"
+        ]
+      }
+    }
+  ],
+  "tables": [
+    {
+      "id": "ranking",
+      "title": "学生排名（按平均分）",
+      "description": "按照平均分从高到低排序，最大展示 10 条。",
+      "endpoint": "/api/analysis/rankings",
+      "columns": [
+        {
+          "header": "名次",
+          "key": "rank"
+        },
+        {
+          "header": "学生 ID",
+          "key": "studentId"
+        },
+        {
+          "header": "平均分",
+          "key": "averageScore",
+          "precision": 2,
+          "suffix": " 分"
+        }
+      ],
+      "limit": 10
+    },
+    {
+      "id": "student-list",
+      "title": "学生信息速览",
+      "description": "展示部分学生的学号、姓名、班级与专业，供快速查阅。",
+      "endpoint": "/api/students",
+      "columns": [
+        {
+          "header": "学号",
+          "key": "studentNumber"
+        },
+        {
+          "header": "姓名",
+          "key": "name"
+        },
+        {
+          "header": "班级",
+          "key": "clazz"
+        },
+        {
+          "header": "专业",
+          "key": "major"
+        }
+      ],
+      "limit": 8
+    }
+  ],
+  "lists": [
+    {
+      "id": "pass-rate",
+      "title": "各课程及格率",
+      "description": "课程及格率从高到低排序并通过进度条展示。",
+      "endpoint": "/api/analysis/pass-rates",
+      "valueSuffix": "%",
+      "sort": "desc"
+    }
+  ]
+}
