@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学生主页 - 学生管理系统</title>
+  <meta name="description" content="学生端首页。">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body data-page="student">
+  <header class="top-bar">
+    <div>
+      <p class="eyebrow">学生管理系统</p>
+      <h1>学生主页</h1>
+      <p class="subhead">查看个人成绩与推荐。</p>
+    </div>
+    <div class="status-indicator success">学生端</div>
+  </header>
+
+  <section class="auth-panel">
+    <div>
+      <h2>当前登录</h2>
+      <p>用户：<span id="currentUser">--</span> · 角色：<span id="currentRole">--</span></p>
+    </div>
+    <div class="auth-actions">
+      <button id="logoutButton" type="button">退出登录</button>
+      <a class="action-link" href="/dashboard.html">仪表盘</a>
+    </div>
+  </section>
+
+  <main class="content-area">
+    <section class="content-block">
+      <h2>个人信息</h2>
+      <div id="studentInfo" class="overview-summary">
+        <p class="panel-loading">加载中...</p>
+      </div>
+    </section>
+
+    <section class="content-block">
+      <h2>成绩记录</h2>
+      <div class="module-table">
+        <table>
+          <thead>
+            <tr>
+              <th>课程</th>
+              <th>考试</th>
+              <th>成绩</th>
+              <th>记录时间</th>
+            </tr>
+          </thead>
+          <tbody id="studentScoresBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="content-block">
+      <h2>考试趋势</h2>
+      <div class="chart-wrapper">
+        <canvas id="studentTrendChart"></canvas>
+      </div>
+    </section>
+
+    <section class="content-block">
+      <h2>个性化推荐</h2>
+      <div id="studentRecommendationList" class="recommendation-list">
+        <p class="panel-loading">加载中...</p>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="/js/student.js"></script>
+</body>
+</html>

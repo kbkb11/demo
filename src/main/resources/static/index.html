@@ -1,234 +1,84 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>学生管理系统仪表盘</title>
-  <meta name="description" content="基于配置驱动的学生管理系统前端，展示统计、表格与图表。">
+  <title>学生管理系统 - 入口</title>
+  <meta name="description" content="学生管理系统入口，提供仪表盘、管理端、教学洞察导航。">
   <link rel="stylesheet" href="/css/dashboard.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <header class="top-bar">
     <div>
       <p class="eyebrow">学生管理系统</p>
-      <h1>动态数据仪表盘</h1>
-      <p class="subhead">自动读取配置并渲染统计面板、表格与进度条，支持手动输入 Basic Auth 凭证。</p>
+      <h1>系统入口</h1>
+      <p class="subhead">选择需要进入的功能模块。</p>
     </div>
-    <div id="statusIndicator" class="status-indicator pending">待登录</div>
+    <div class="status-indicator success">入口已就绪</div>
   </header>
 
-  <section class="auth-panel">
-    <div>
-      <h2>API 凭证配置</h2>
-      <p>默认使用 <strong>admin</strong> / <strong>admin123</strong>。填写后点击“应用凭证并刷新”。</p>
-    </div>
-    <form id="loginForm" class="inline-form">
-      <label>
-        用户名
-        <input id="usernameInput" type="text" name="username" required value="admin" autocomplete="username">
-      </label>
-      <label>
-        密码
-        <input id="passwordInput" type="password" name="password" required value="admin123" autocomplete="current-password">
-      </label>
-      <button type="submit">应用凭证并刷新</button>
-    </form>
-    <div class="auth-actions">
-      <button id="refreshButton" type="button">刷新所有面板</button>
-      <span id="credentialSummary" class="credential-summary">当前凭证：未设置</span>
-    </div>
-    <p class="config-hint">
-      配置文件：<code>/config/dashboard-config.json</code>
-      · API 根路径：<span id="apiBaseUrl" class="muted">加载中...</span>
-    </p>
-  </section>
-
-  <section id="statusMessage" class="status-message" aria-live="polite"></section>
-
   <main class="content-area">
-    <section id="dashboard" class="dashboard-grid"></section>
-    <section id="tables" class="table-grid"></section>
-    <section id="lists" class="list-grid"></section>
+    <section class="content-block">
+      <h2>快速入口</h2>
+      <p class="panel-loading">请先登录后进入功能模块。</p>
+      <div class="auth-actions">
+        <a class="action-link" href="/login.html">前往登录</a>
+        <a class="action-link" href="/register.html">注册账号</a>
+      </div>
+    </section>
+    <section class="dashboard-grid">
+      <article class="dashboard-panel">
+        <div class="panel-header">
+          <div>
+            <h3>综合仪表盘</h3>
+            <p>配置驱动的统计卡片、图表与榜单。</p>
+          </div>
+        </div>
+        <a class="action-link" href="/dashboard.html">进入仪表盘</a>
+      </article>
+
+      <article class="dashboard-panel">
+        <div class="panel-header">
+          <div>
+            <h3>管理端</h3>
+            <p>学生 / 课程 / 考试 / 成绩管理与 Excel 导入导出。</p>
+          </div>
+        </div>
+        <a class="action-link" href="/manage.html">进入管理端</a>
+      </article>
+
+      <article class="dashboard-panel">
+        <div class="panel-header">
+          <div>
+            <h3>教学洞察</h3>
+            <p>班级趋势、风险学生标注与个性化推荐。</p>
+          </div>
+        </div>
+        <a class="action-link" href="/analysis.html">进入教学洞察</a>
+      </article>
+
+      <article class="dashboard-panel">
+        <div class="panel-header">
+          <div>
+            <h3>资料库</h3>
+            <p>维护学习资料与课程关键词。</p>
+          </div>
+        </div>
+        <a class="action-link" href="/materials.html">进入资料库</a>
+      </article>
+    </section>
   </main>
 
-  <section class="module-section" aria-label="管理模块">
-    <div class="module-header">
-      <h2>管理与操作</h2>
-      <p>学生 / 课程 / 成绩的惯用 CRUD 功能，外加 Excel 导入导出，可直接与后端接口交互。</p>
-    </div>
-    <div class="module-grid">
-      <article class="module-card" id="studentsModule">
-        <header>
-          <h3>学生管理</h3>
-          <p>新增、修改、删除学生，点击表格右侧按钮即可编辑或移除。</p>
-        </header>
-        <form id="studentForm" class="module-form">
-          <input type="hidden" id="studentIdInput">
-          <div class="form-row">
-            <label>
-              学号
-              <input id="studentNumberInput" type="text" autocomplete="off" required>
-            </label>
-            <label>
-              姓名
-              <input id="studentNameInput" type="text" autocomplete="off" required>
-            </label>
-          </div>
-          <div class="form-row">
-            <label>
-              班级
-              <input id="studentClazzInput" type="text" autocomplete="off" required>
-            </label>
-            <label>
-              专业
-              <input id="studentMajorInput" type="text" autocomplete="off" required>
-            </label>
-          </div>
-          <div class="form-actions">
-            <button type="submit">保存学生</button>
-            <button type="button" id="studentFormReset">清空</button>
-          </div>
-        </form>
-        <div class="module-table">
-          <table>
-            <thead>
-              <tr>
-                <th>学号</th>
-                <th>姓名</th>
-                <th>班级</th>
-                <th>专业</th>
-                <th class="text-end">操作</th>
-              </tr>
-            </thead>
-            <tbody id="studentsTableBody"></tbody>
-          </table>
-        </div>
-      </article>
-
-      <article class="module-card" id="coursesModule">
-        <header>
-          <h3>课程管理</h3>
-          <p>维护课程基础信息，包含名称、学分、任课教师。</p>
-        </header>
-        <form id="courseForm" class="module-form">
-          <input type="hidden" id="courseIdInput">
-          <div class="form-row">
-            <label>
-              课程名称
-              <input id="courseNameInput" type="text" autocomplete="off" required>
-            </label>
-            <label>
-              学分
-              <input id="courseCreditInput" type="number" min="0.5" step="0.5" required>
-            </label>
-          </div>
-          <div class="form-row">
-            <label>
-              任课教师
-              <input id="courseTeacherInput" type="text" autocomplete="off" required>
-            </label>
-            <div></div>
-          </div>
-          <div class="form-actions">
-            <button type="submit">保存课程</button>
-            <button type="button" id="courseFormReset">清空</button>
-          </div>
-        </form>
-        <div class="module-table">
-          <table>
-            <thead>
-              <tr>
-                <th>课程</th>
-                <th>学分</th>
-                <th>教师</th>
-                <th class="text-end">操作</th>
-              </tr>
-            </thead>
-            <tbody id="coursesTableBody"></tbody>
-          </table>
-        </div>
-      </article>
-
-      <article class="module-card" id="scoresModule">
-        <header>
-          <h3>成绩管理</h3>
-          <p>成绩录入/修改支持选择学生、课程并指定分数。</p>
-        </header>
-        <form id="scoreForm" class="module-form">
-          <input type="hidden" id="scoreIdInput">
-          <div class="form-row">
-            <label>
-              学生
-              <select id="scoreStudentSelect" required></select>
-            </label>
-            <label>
-              课程
-              <select id="scoreCourseSelect" required></select>
-            </label>
-          </div>
-          <div class="form-row">
-            <label>
-              成绩
-              <input id="scoreValueInput" type="number" min="0" max="100" step="0.1" required>
-            </label>
-            <div></div>
-          </div>
-          <div class="form-actions">
-            <button type="submit">提交成绩</button>
-            <button type="button" id="scoreFormReset">重置</button>
-          </div>
-        </form>
-        <div class="module-table">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>学生</th>
-                <th>课程</th>
-                <th>成绩</th>
-                <th class="text-end">操作</th>
-              </tr>
-            </thead>
-            <tbody id="scoresTableBody"></tbody>
-          </table>
-        </div>
-      </article>
-
-      <article class="module-card" id="excelModule">
-        <header>
-          <h3>Excel 导入 / 导出</h3>
-          <p>上传学生/成绩 Excel，或导出当前数据供审核使用。</p>
-        </header>
-        <div class="excel-grid">
-          <form id="studentExcelForm" class="excel-form">
-            <label>
-              学生导入文件 (.xlsx)
-              <input type="file" id="studentExcelFile" accept=".xlsx" required>
-            </label>
-            <button type="submit">上传学生</button>
-          </form>
-          <form id="scoreExcelForm" class="excel-form">
-            <label>
-              成绩导入文件 (.xlsx)
-              <input type="file" id="scoreExcelFile" accept=".xlsx" required>
-            </label>
-            <button type="submit">上传成绩</button>
-          </form>
-        </div>
-        <div class="excel-actions">
-          <button data-endpoint="/api/excel/export/students" data-filename="students.xlsx">导出学生</button>
-          <button data-endpoint="/api/excel/export/scores" data-filename="scores.xlsx">导出成绩</button>
-        </div>
-        <div id="excelStatus" class="excel-status" aria-live="polite"></div>
-      </article>
-    </div>
-  </section>
-
   <footer class="page-footer">
-    <p>© 2026 学校信息化. 面板结构由配置驱动，可通过更新 <code>dashboard-config.json</code> 添加新模块。</p>
+    <p>请先完成登录配置与数据初始化后再进入具体模块。</p>
   </footer>
 
-  <script type="module" src="/js/dashboard.js"></script>
+  <script type="module">
+    import { fetchCurrentUser, resolveRoleRoute } from '/js/auth.js';
+    const user = await fetchCurrentUser();
+    if (user) {
+      window.location.href = resolveRoleRoute(user.role);
+    }
+  </script>
 </body>
 </html>

@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录 - 学生管理系统</title>
+  <meta name="description" content="学生管理系统登录页面。">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body data-page="login">
+  <header class="top-bar">
+    <div>
+      <p class="eyebrow">学生管理系统</p>
+      <h1>登录</h1>
+      <p class="subhead">请输入账号密码进入系统。</p>
+    </div>
+  </header>
+
+  <section class="auth-panel">
+    <div>
+      <h2>账号登录</h2>
+      <p>根据角色进入对应页面。</p>
+    </div>
+    <form id="loginPageForm" class="inline-form">
+      <label>
+        用户名
+        <input id="loginUsername" type="text" name="username" required autocomplete="username">
+      </label>
+      <label>
+        密码
+        <input id="loginPassword" type="password" name="password" required autocomplete="current-password">
+      </label>
+      <button type="submit">登录</button>
+    </form>
+    <div class="auth-actions">
+      <a class="action-link" href="/register.html">没有账号？去注册</a>
+    </div>
+    <div id="loginMessage" class="status-message" aria-live="polite"></div>
+  </section>
+
+  <script type="module" src="/js/login.js"></script>
+</body>
+</html>

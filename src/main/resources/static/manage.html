@@ -1,0 +1,270 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理端 - 学生管理系统</title>
+  <meta name="description" content="学生管理系统管理端，涵盖学生、课程、考试、成绩与 Excel 操作。">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body data-page="manage">
+  <header class="top-bar">
+    <div>
+      <p class="eyebrow">学生管理系统</p>
+      <h1>管理端</h1>
+      <p class="subhead">学生 / 课程 / 考试 / 成绩与 Excel 操作。</p>
+    </div>
+    <div id="statusIndicator" class="status-indicator pending">待登录</div>
+  </header>
+
+  <section class="auth-panel">
+    <div>
+      <h2>当前登录</h2>
+      <p>用户：<span id="currentUser">--</span> · 角色：<span id="currentRole">--</span></p>
+    </div>
+    <div class="auth-actions">
+      <button id="refreshButton" type="button">刷新所有模块</button>
+      <button id="logoutButton" type="button">退出登录</button>
+    </div>
+    <p class="config-hint">
+      配置文件：<code>/config/dashboard-config.json</code>
+      · API 根路径：<span id="apiBaseUrl" class="muted">加载中...</span>
+    </p>
+  </section>
+
+  <nav class="section-nav" aria-label="管理端导航">
+    <a href="#studentsModule">学生</a>
+    <a href="#coursesModule">课程</a>
+    <a href="#examsModule">考试</a>
+    <a href="#scoresModule">成绩</a>
+    <a href="#excelModule">Excel</a>
+  </nav>
+
+  <section id="statusMessage" class="status-message" aria-live="polite"></section>
+
+  <section class="module-section" aria-label="管理模块">
+    <div class="module-header">
+      <h2>管理与操作</h2>
+      <p>学生 / 课程 / 考试 / 成绩 CRUD，附带 Excel 导入导出。</p>
+      <div class="auth-actions">
+        <a class="action-link" href="/index.html">返回入口</a>
+        <a class="action-link" href="/dashboard.html">仪表盘</a>
+        <a class="action-link" href="/analysis.html">教学洞察</a>
+        <a class="action-link" href="/materials.html">资料库</a>
+      </div>
+    </div>
+    <div class="module-grid">
+      <article class="module-card" id="studentsModule">
+        <header>
+          <h3>学生管理</h3>
+          <p>新增、修改、删除学生，点击表格右侧按钮即可编辑或移除。</p>
+        </header>
+        <form id="studentForm" class="module-form">
+          <input type="hidden" id="studentIdInput">
+          <div class="form-row">
+            <label>
+              学号
+              <input id="studentNumberInput" type="text" autocomplete="off" required>
+            </label>
+            <label>
+              姓名
+              <input id="studentNameInput" type="text" autocomplete="off" required>
+            </label>
+          </div>
+          <div class="form-row">
+            <label>
+              班级
+              <input id="studentClazzInput" type="text" autocomplete="off" required>
+            </label>
+            <label>
+              专业
+              <input id="studentMajorInput" type="text" autocomplete="off" required>
+            </label>
+          </div>
+          <div class="form-actions">
+            <button type="submit">保存学生</button>
+            <button type="button" id="studentFormReset">清空</button>
+          </div>
+        </form>
+        <div class="module-table">
+          <table>
+            <thead>
+              <tr>
+                <th>学号</th>
+                <th>姓名</th>
+                <th>班级</th>
+                <th>专业</th>
+                <th class="text-end">操作</th>
+              </tr>
+            </thead>
+            <tbody id="studentsTableBody"></tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="module-card" id="coursesModule">
+        <header>
+          <h3>课程管理</h3>
+          <p>维护课程基础信息，包含名称、学分、任课教师。</p>
+        </header>
+        <form id="courseForm" class="module-form">
+          <input type="hidden" id="courseIdInput">
+          <div class="form-row">
+            <label>
+              课程名称
+              <input id="courseNameInput" type="text" autocomplete="off" required>
+            </label>
+            <label>
+              学分
+              <input id="courseCreditInput" type="number" min="0.5" step="0.5" required>
+            </label>
+          </div>
+          <div class="form-row">
+            <label>
+              任课教师
+              <input id="courseTeacherInput" type="text" autocomplete="off" required>
+            </label>
+            <div></div>
+          </div>
+          <div class="form-actions">
+            <button type="submit">保存课程</button>
+            <button type="button" id="courseFormReset">清空</button>
+          </div>
+        </form>
+        <div class="module-table">
+          <table>
+            <thead>
+              <tr>
+                <th>课程</th>
+                <th>学分</th>
+                <th>教师</th>
+                <th class="text-end">操作</th>
+              </tr>
+            </thead>
+            <tbody id="coursesTableBody"></tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="module-card" id="examsModule">
+        <header>
+          <h3>考试管理</h3>
+          <p>维护考试名称与日期，为成绩录入提供选择。</p>
+        </header>
+        <form id="examForm" class="module-form">
+          <input type="hidden" id="examIdInput">
+          <div class="form-row">
+            <label>
+              考试名称
+              <input id="examNameInput" type="text" autocomplete="off" required>
+            </label>
+            <label>
+              考试日期
+              <input id="examDateInput" type="date" required>
+            </label>
+          </div>
+          <div class="form-actions">
+            <button type="submit">保存考试</button>
+            <button type="button" id="examFormReset">清空</button>
+          </div>
+        </form>
+        <div class="module-table">
+          <table>
+            <thead>
+              <tr>
+                <th>考试名称</th>
+                <th>日期</th>
+                <th class="text-end">操作</th>
+              </tr>
+            </thead>
+            <tbody id="examsTableBody"></tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="module-card" id="scoresModule">
+        <header>
+          <h3>成绩管理</h3>
+          <p>成绩录入/修改支持选择学生、课程并指定分数。</p>
+        </header>
+        <form id="scoreForm" class="module-form">
+          <input type="hidden" id="scoreIdInput">
+          <div class="form-row">
+            <label>
+              学生
+              <select id="scoreStudentSelect" required></select>
+            </label>
+            <label>
+              课程
+              <select id="scoreCourseSelect" required></select>
+            </label>
+          </div>
+          <div class="form-row">
+            <label>
+              考试
+              <select id="scoreExamSelect" required></select>
+            </label>
+            <div></div>
+          </div>
+          <div class="form-row">
+            <label>
+              成绩
+              <input id="scoreValueInput" type="number" min="0" max="100" step="0.1" required>
+            </label>
+            <div></div>
+          </div>
+          <div class="form-actions">
+            <button type="submit">提交成绩</button>
+            <button type="button" id="scoreFormReset">重置</button>
+          </div>
+        </form>
+        <div class="module-table">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>学生</th>
+                <th>课程</th>
+                <th>考试</th>
+                <th>成绩</th>
+                <th class="text-end">操作</th>
+              </tr>
+            </thead>
+            <tbody id="scoresTableBody"></tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="module-card" id="excelModule">
+        <header>
+          <h3>Excel 导入 / 导出</h3>
+          <p>上传学生/成绩 Excel，或导出当前数据供审核使用。</p>
+        </header>
+        <div class="excel-grid">
+          <form id="studentExcelForm" class="excel-form">
+            <label>
+              学生导入文件 (.xlsx)
+              <input type="file" id="studentExcelFile" accept=".xlsx" required>
+            </label>
+            <button type="submit">上传学生</button>
+          </form>
+          <form id="scoreExcelForm" class="excel-form">
+            <label>
+              成绩导入文件 (.xlsx)
+              <input type="file" id="scoreExcelFile" accept=".xlsx" required>
+            </label>
+            <button type="submit">上传成绩</button>
+          </form>
+        </div>
+        <div class="excel-actions">
+          <button data-endpoint="/api/excel/export/students" data-filename="students.xlsx">导出学生</button>
+          <button data-endpoint="/api/excel/export/scores" data-filename="scores.xlsx">导出成绩</button>
+        </div>
+        <div id="excelStatus" class="excel-status" aria-live="polite"></div>
+      </article>
+    </div>
+  </section>
+
+  <script type="module" src="/js/dashboard.js"></script>
+</body>
+</html>

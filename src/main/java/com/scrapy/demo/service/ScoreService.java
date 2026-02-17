@@ -6,13 +6,12 @@ import com.scrapy.demo.repository.ScoreHistoryRepository;
 import com.scrapy.demo.repository.ScoreRepository;
 import com.scrapy.demo.repository.StudentRepository;
 import com.scrapy.demo.repository.CourseRepository;
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.scrapy.demo.repository.ExamRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 成绩服务
@@ -23,17 +22,18 @@ public class ScoreService {
 
     private final ScoreRepository scoreRepository;
     private final ScoreHistoryRepository historyRepository;
-    private final JdbcTemplate jdbcTemplate;
     private final StudentRepository studentRepository;
     private final CourseRepository courseRepository;
+    private final ExamRepository examRepository;
 
-    public ScoreService(ScoreRepository scoreRepository, ScoreHistoryRepository historyRepository, JdbcTemplate jdbcTemplate,
-                        StudentRepository studentRepository, CourseRepository courseRepository) {
+    public ScoreService(ScoreRepository scoreRepository, ScoreHistoryRepository historyRepository,
+                        StudentRepository studentRepository, CourseRepository courseRepository,
+                        ExamRepository examRepository) {
         this.scoreRepository = scoreRepository;
         this.historyRepository = historyRepository;
-        this.jdbcTemplate = jdbcTemplate;
         this.studentRepository = studentRepository;
         this.courseRepository = courseRepository;
+        this.examRepository = examRepository;
     }
 
     /**
@@ -90,6 +90,15 @@ public class ScoreService {
             }
         }
 
+        if (score.getExam() != null) {
+            if (score.getExam().getId() == null) {
+                examRepository.saveAndFlush(score.getExam());
+            } else {
+                examRepository.findById(score.getExam().getId())
+                        .orElseThrow(() -> new IllegalArgumentException("Exam does not exist: " + score.getExam().getId()));
+            }
+        }
+
         return scoreRepository.save(score);
     }
 
@@ -98,26 +107,68 @@ public class ScoreService {
      */
     @Transactional
     public Score updateScoreValue(Long scoreId, Double newValue) {
+        Score payload = new Score();
+        payload.setValue(newValue);
+        return updateScore(scoreId, payload);
+    }
+
+    /**
+     * 更新成绩信息（学生/课程/考试/分数）
+     */
+    @Transactional
+    public Score updateScore(Long scoreId, Score payload) {
         Score existing = scoreRepository.findById(scoreId)
                 .orElseThrow(() -> new IllegalArgumentException("成绩不存在：" + scoreId));
-        
-        // 记录旧值
-        Double oldValue = existing.getValue();
 
-        // 先更新成绩并保存，确保父表记录存在并已持久化
-        existing.setValue(newValue);
+        if (payload != null) {
+            if (payload.getStudent() != null) {
+                Long studentId = payload.getStudent().getId();
+                if (studentId == null) {
+                    studentRepository.saveAndFlush(payload.getStudent());
+                    existing.setStudent(payload.getStudent());
+                } else {
+                    existing.setStudent(studentRepository.findById(studentId)
+                            .orElseThrow(() -> new IllegalArgumentException("Student does not exist: " + studentId)));
+                }
+            }
+
+            if (payload.getCourse() != null) {
+                Long courseId = payload.getCourse().getId();
+                if (courseId == null) {
+                    courseRepository.saveAndFlush(payload.getCourse());
+                    existing.setCourse(payload.getCourse());
+                } else {
+                    existing.setCourse(courseRepository.findById(courseId)
+                            .orElseThrow(() -> new IllegalArgumentException("Course does not exist: " + courseId)));
+                }
+            }
+
+            if (payload.getExam() != null) {
+                Long examId = payload.getExam().getId();
+                if (examId == null) {
+                    examRepository.saveAndFlush(payload.getExam());
+                    existing.setExam(payload.getExam());
+                } else {
+                    existing.setExam(examRepository.findById(examId)
+                            .orElseThrow(() -> new IllegalArgumentException("Exam does not exist: " + examId)));
+                }
+            }
+        }
+
+        Double oldValue = existing.getValue();
+        Double newValue = payload == null ? null : payload.getValue();
+        if (newValue != null) {
+            existing.setValue(newValue);
+        }
+
         Score saved = scoreRepository.save(existing);
-        // 强制刷新到数据库，确保 ID 已分配（GenerationType.IDENTITY 情况）
         scoreRepository.flush();
 
-        // MySQL 不能使用双引号包字段名，改为标准标识符写法。
-        LocalDateTime now = LocalDateTime.now();
-        jdbcTemplate.update(
-                "INSERT INTO score_history (score_id, before_value, after_value, modified_at) VALUES (?, ?, ?, ?)",
-                saved.getId(), oldValue, newValue, Timestamp.valueOf(now)
-        );
+        if (newValue != null && !Objects.equals(oldValue, newValue)) {
+            ScoreHistory history = new ScoreHistory(saved, oldValue, newValue);
+            historyRepository.save(history);
+        }
 
-        // 返回已保存的成绩
         return saved;
     }
 

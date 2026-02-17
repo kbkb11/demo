@@ -1,0 +1,58 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>注册 - 学生管理系统</title>
+  <meta name="description" content="学生管理系统注册页面。">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body data-page="register">
+  <header class="top-bar">
+    <div>
+      <p class="eyebrow">学生管理系统</p>
+      <h1>注册账号</h1>
+      <p class="subhead">学生与教师需要填写对应编号绑定身份。</p>
+    </div>
+  </header>
+
+  <section class="auth-panel">
+    <div>
+      <h2>账号注册</h2>
+      <p>选择角色并填写必要信息。</p>
+    </div>
+    <form id="registerForm" class="inline-form">
+      <label>
+        用户名
+        <input id="regUsername" type="text" required>
+      </label>
+      <label>
+        密码
+        <input id="regPassword" type="password" required>
+      </label>
+      <label>
+        角色
+        <select id="regRole" required>
+          <option value="STUDENT">学生</option>
+          <option value="TEACHER">教师</option>
+        </select>
+      </label>
+      <label id="studentNumberBlock">
+        学号
+        <input id="regStudentNumber" type="text">
+      </label>
+      <label id="teacherNumberBlock" style="display:none;">
+        工号
+        <input id="regTeacherNumber" type="text">
+      </label>
+      <button type="submit">注册</button>
+    </form>
+    <div class="auth-actions">
+      <a class="action-link" href="/login.html">已有账号？去登录</a>
+    </div>
+    <div id="registerMessage" class="status-message" aria-live="polite"></div>
+  </section>
+
+  <script type="module" src="/js/register.js"></script>
+</body>
+</html>

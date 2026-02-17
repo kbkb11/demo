@@ -1,0 +1,22 @@
+function formatMetric(value, precision = 0, suffix = '') {
+  if (value === undefined || value === null) {
+    return '--';
+  }
+  if (typeof value === 'string') {
+    return value.trim() ? value : '--';
+  }
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) {
+    return String(value);
+  }
+  const formatted = numeric.toFixed(precision ?? 0);
+  return suffix ? formatted + suffix : formatted;
+}
+
+function clamp(value, min, max) {
+  const numeric = Number(value);
+  if (Number.isNaN(numeric)) {
+    return min;
+  }
+  return Math.min(Math.max(numeric, min), max);
+}

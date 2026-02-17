@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>教学洞察 - 学生管理系统</title>
+  <meta name="description" content="教学洞察页面，展示班级趋势、风险学生与个性化推荐。">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body data-page="analysis">
+  <header class="top-bar">
+    <div>
+      <p class="eyebrow">学生管理系统</p>
+      <h1>教学洞察</h1>
+      <p class="subhead">班级趋势、风险学生与个性化推荐。</p>
+    </div>
+    <div id="statusIndicator" class="status-indicator pending">待登录</div>
+  </header>
+
+  <section class="auth-panel">
+    <div>
+      <h2>当前登录</h2>
+      <p>用户：<span id="currentUser">--</span> · 角色：<span id="currentRole">--</span></p>
+    </div>
+    <div class="auth-actions">
+      <button id="refreshButton" type="button">刷新洞察</button>
+      <button id="logoutButton" type="button">退出登录</button>
+    </div>
+    <div class="auth-actions">
+      <a class="action-link" href="/index.html">返回入口</a>
+      <a class="action-link" href="/dashboard.html">仪表盘</a>
+      <a class="action-link" href="/manage.html">管理端</a>
+      <a class="action-link" href="/materials.html">资料库</a>
+    </div>
+    <p class="config-hint">
+      配置文件：<code>/config/dashboard-config.json</code>
+      · API 根路径：<span id="apiBaseUrl" class="muted">加载中...</span>
+    </p>
+  </section>
+
+  <nav class="section-nav" aria-label="洞察导航">
+    <a href="#overviewCard">班级概览</a>
+    <a href="#flagsCard">学生标签</a>
+    <a href="#recommendCard">个性化推荐</a>
+  </nav>
+
+  <section id="statusMessage" class="status-message" aria-live="polite"></section>
+
+  <section class="analysis-section" aria-label="教学洞察">
+    <div class="module-header">
+      <h2>教师端洞察</h2>
+      <p>展示班级趋势、风险学生标注以及个性化推荐理由和学习资料。</p>
+    </div>
+    <div class="analysis-controls">
+      <label>
+        班级
+        <input id="insightClassInput" type="text" value="计算机1班" autocomplete="off">
+      </label>
+      <button id="insightOverviewButton" type="button">刷新班级概览</button>
+      <button id="insightFlagsButton" type="button">刷新学生标签</button>
+      <label>
+        推荐学生
+        <select id="insightStudentSelect"></select>
+      </label>
+      <button id="insightRecommendationButton" type="button">获取推荐</button>
+      <label class="prompt-input">
+        LLM 提示词
+        <textarea id="insightPromptInput" rows="2" placeholder="可留空，默认使用系统提示">请根据以下数据提供一句简短的中文推荐理由。</textarea>
+      </label>
+    </div>
+    <div class="analysis-grid">
+      <article class="analysis-card" id="overviewCard">
+        <header>
+          <h3>班级概览</h3>
+          <p>贡献平均分、及格率、弱势科目等关键指标。</p>
+        </header>
+        <div id="overviewSummary" class="overview-summary">
+          <p class="panel-loading">暂无数据</p>
+        </div>
+      </article>
+      <article class="analysis-card" id="flagsCard">
+        <header>
+          <h3>学生进步 / 风险</h3>
+          <p>按排名变化与风险等级排序，辅助教师点对点干预。</p>
+        </header>
+        <div class="flag-table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>姓名</th>
+                <th>当前</th>
+                <th>趋势</th>
+                <th>排名</th>
+                <th>标签</th>
+              </tr>
+            </thead>
+            <tbody id="flagsTableBody">
+              <tr><td colspan="5" class="panel-loading">暂无数据</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+      <article class="analysis-card" id="recommendCard">
+        <header>
+          <h3>个性化推荐</h3>
+          <p>依据趋势、班级均值及大模型推荐理由，自动提供资料。</p>
+        </header>
+        <div id="recommendationList" class="recommendation-list">
+          <p class="panel-loading">暂无数据</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <script type="module" src="/js/dashboard.js"></script>
+</body>
+</html>

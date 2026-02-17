@@ -1,10 +1,12 @@
 package com.scrapy.demo.service;
 
+import com.scrapy.demo.domain.Exam;
 import com.scrapy.demo.domain.Score;
 import com.scrapy.demo.repository.ScoreRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.time.LocalDate;
 
 /**
  * 成绩统计与分析服务
@@ -163,7 +165,10 @@ public class ScoreAnalysisService {
                     .filter(s -> s.getValue() >= 60)
                     .count();
             double passRate = (double) passCount / courseScores.size() * 100;
-            passRates.put("课程ID:" + courseId, Math.round(passRate * 100) / 100.0);
+            String courseName = courseScores.get(0).getCourse() == null
+                    ? ("课程ID:" + courseId)
+                    : courseScores.get(0).getCourse().getName();
+            passRates.put(courseName, Math.round(passRate * 100) / 100.0);
         });
 
         return passRates;
@@ -203,5 +208,91 @@ public class ScoreAnalysisService {
         }
 
         return rankings;
+    }
+
+    /**
+     * 获取各考试平均分（按考试日期排序）
+     */
+    public Map<String, Double> getExamAverages() {
+        List<ExamBucket> buckets = buildExamBuckets(scoreRepository.findAll());
+        Map<String, Double> result = new LinkedHashMap<>();
+        for (ExamBucket bucket : buckets) {
+            result.put(bucket.label(), round2(bucket.average()));
+        }
+        return result;
+    }
+
+    /**
+     * 获取各考试及格率（按考试日期排序）
+     */
+    public Map<String, Double> getExamPassRates() {
+        List<ExamBucket> buckets = buildExamBuckets(scoreRepository.findAll());
+        Map<String, Double> result = new LinkedHashMap<>();
+        for (ExamBucket bucket : buckets) {
+            result.put(bucket.label(), round2(bucket.passRate()));
+        }
+        return result;
+    }
+
+    private List<ExamBucket> buildExamBuckets(List<Score> scores) {
+        Map<Long, ExamBucket> map = new LinkedHashMap<>();
+        for (Score score : scores) {
+            Exam exam = score.getExam();
+            if (exam == null) {
+                continue;
+            }
+            ExamBucket bucket = map.computeIfAbsent(exam.getId(), id -> new ExamBucket(exam));
+            bucket.accept(score.getValue());
+        }
+        List<ExamBucket> buckets = new ArrayList<>(map.values());
+        buckets.sort(Comparator
+                .comparing((ExamBucket bucket) -> bucket.examDate, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(bucket -> bucket.examName == null ? "" : bucket.examName));
+        return buckets;
+    }
+
+    private double round2(double value) {
+        return Math.round(value * 100.0) / 100.0;
+    }
+
+    private static final class ExamBucket {
+        private final Long examId;
+        private final String examName;
+        private final LocalDate examDate;
+        private double sum;
+        private int count;
+        private int passCount;
+
+        private ExamBucket(Exam exam) {
+            this.examId = exam.getId();
+            this.examName = exam.getName();
+            this.examDate = exam.getExamDate();
+        }
+
+        private void accept(Double value) {
+            if (value == null) {
+                return;
+            }
+            sum += value;
+            count++;
+            if (value >= 60) {
+                passCount++;
+            }
+        }
+
+        private double average() {
+            return count == 0 ? 0.0 : sum / count;
+        }
+
+        private double passRate() {
+            return count == 0 ? 0.0 : passCount * 100.0 / count;
+        }
+
+        private String label() {
+            if (examName != null && !examName.isBlank()) {
+                return examName;
+            }
+            return examDate == null ? "未命名考试" : examDate.toString();
+        }
     }
 }

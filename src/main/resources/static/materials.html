@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>资料库 - 学生管理系统</title>
+  <meta name="description" content="学习资料库管理页面。">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body data-page="materials">
+  <header class="top-bar">
+    <div>
+      <p class="eyebrow">学生管理系统</p>
+      <h1>资料库</h1>
+      <p class="subhead">维护推荐资料与科目标签。</p>
+    </div>
+    <div id="statusIndicator" class="status-indicator pending">待登录</div>
+  </header>
+
+  <section class="auth-panel">
+    <div>
+      <h2>当前登录</h2>
+      <p>用户：<span id="currentUser">--</span> · 角色：<span id="currentRole">--</span></p>
+    </div>
+    <div class="auth-actions">
+      <button id="refreshButton" type="button">刷新资料</button>
+      <button id="logoutButton" type="button">退出登录</button>
+    </div>
+    <div class="auth-actions">
+      <a class="action-link" href="/index.html">返回入口</a>
+      <a class="action-link" href="/dashboard.html">仪表盘</a>
+      <a class="action-link" href="/manage.html">管理端</a>
+      <a class="action-link" href="/analysis.html">教学洞察</a>
+    </div>
+    <p class="config-hint">
+      配置文件：<code>/config/dashboard-config.json</code>
+      · API 根路径：<span id="apiBaseUrl" class="muted">加载中...</span>
+    </p>
+  </section>
+
+  <nav class="section-nav" aria-label="资料库导航">
+    <a href="#materialsModule">资料管理</a>
+  </nav>
+
+  <section id="statusMessage" class="status-message" aria-live="polite"></section>
+
+  <section class="module-section" aria-label="资料库">
+    <div class="module-header">
+      <h2>学习资料库</h2>
+      <p>为课程推荐提供可复用的学习资料。</p>
+    </div>
+    <div class="analysis-controls">
+      <label>
+        关键字
+        <input id="materialFilterInput" type="text" placeholder="输入科目/标题关键词">
+      </label>
+      <button id="materialFilterClear" type="button">清空筛选</button>
+    </div>
+    <div class="module-grid">
+      <article class="module-card" id="materialsModule">
+        <header>
+          <h3>资料管理</h3>
+          <p>新增/更新/删除学习资料。</p>
+        </header>
+        <form id="materialForm" class="module-form">
+          <input type="hidden" id="materialIdInput">
+          <div class="form-row">
+            <label>
+              科目关键词
+              <input id="materialCourseInput" type="text" autocomplete="off" required>
+            </label>
+            <label>
+              资料标题
+              <input id="materialTitleInput" type="text" autocomplete="off" required>
+            </label>
+          </div>
+          <div class="form-row">
+            <label>
+              资料链接
+              <input id="materialUrlInput" type="url" autocomplete="off" required>
+            </label>
+            <label>
+              类型
+              <select id="materialTypeSelect" required>
+                <option value="">请选择类型</option>
+                <option value="video">video</option>
+                <option value="article">article</option>
+                <option value="exercise">exercise</option>
+                <option value="audio">audio</option>
+                <option value="lab">lab</option>
+              </select>
+            </label>
+          </div>
+          <div class="form-row">
+            <label>
+              难度标签
+              <select id="materialDifficultySelect" required>
+                <option value="">请选择难度</option>
+                <option value="basic">basic</option>
+                <option value="intermediate">intermediate</option>
+                <option value="advanced">advanced</option>
+              </select>
+            </label>
+            <div></div>
+          </div>
+          <div class="form-actions">
+            <button type="submit">保存资料</button>
+            <button type="button" id="materialFormReset">清空</button>
+          </div>
+        </form>
+        <div class="module-table">
+          <table>
+            <thead>
+              <tr>
+                <th>科目</th>
+                <th>标题</th>
+                <th>类型</th>
+                <th>难度</th>
+                <th class="text-end">操作</th>
+              </tr>
+            </thead>
+            <tbody id="materialsTableBody"></tbody>
+          </table>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <script type="module" src="/js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学生管理系统仪表盘</title>
+  <meta name="description" content="基于配置驱动的学生管理系统前端，展示统计、表格与图表。">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body data-page="dashboard">
+  <header class="top-bar">
+    <div>
+      <p class="eyebrow">学生管理系统</p>
+      <h1>动态数据仪表盘</h1>
+      <p class="subhead">自动读取配置并渲染统计面板、表格与进度条，支持手动输入 Basic Auth 凭证。</p>
+    </div>
+    <div id="statusIndicator" class="status-indicator pending">待登录</div>
+  </header>
+
+  <section class="auth-panel">
+    <div>
+      <h2>当前登录</h2>
+      <p>用户：<span id="currentUser">--</span> · 角色：<span id="currentRole">--</span></p>
+    </div>
+    <div class="auth-actions">
+      <button id="refreshButton" type="button">刷新所有面板</button>
+      <button id="logoutButton" type="button">退出登录</button>
+    </div>
+    <div class="auth-actions">
+      <a class="action-link" href="/index.html">返回入口</a>
+      <a class="action-link" href="/manage.html">管理端</a>
+      <a class="action-link" href="/analysis.html">教学洞察</a>
+      <a class="action-link" href="/materials.html">资料库</a>
+    </div>
+    <p class="config-hint">
+      配置文件：<code>/config/dashboard-config.json</code>
+      · API 根路径：<span id="apiBaseUrl" class="muted">加载中...</span>
+    </p>
+  </section>
+
+  <nav class="section-nav" aria-label="仪表盘导航">
+    <a href="#dashboard-section">统计面板</a>
+    <a href="#tables-section">数据表格</a>
+    <a href="#lists-section">进度列表</a>
+  </nav>
+
+  <section id="statusMessage" class="status-message" aria-live="polite"></section>
+
+  <main class="content-area">
+    <section id="dashboard-section" class="content-block">
+      <h2>统计面板</h2>
+      <section id="dashboard" class="dashboard-grid"></section>
+    </section>
+    <section id="tables-section" class="content-block">
+      <h2>数据表格</h2>
+      <section id="tables" class="table-grid"></section>
+    </section>
+    <section id="lists-section" class="content-block">
+      <h2>进度列表</h2>
+      <section id="lists" class="list-grid"></section>
+    </section>
+  </main>
+
+  <footer class="page-footer">
+    <p>© 2026 学校信息化. 面板结构由配置驱动，可通过更新 <code>dashboard-config.json</code> 添加新模块。</p>
+  </footer>
+
+  <script type="module" src="/js/dashboard.js"></script>
+</body>
+</html>

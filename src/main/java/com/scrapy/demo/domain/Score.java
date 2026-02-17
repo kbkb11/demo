@@ -28,6 +28,10 @@ public class Score {
     @DecimalMin(value = "0", message = "成绩不能为空小于0")
     private Double value;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "exam_id")
+    private Exam exam;
+
     @Column(name = "recorded_at", nullable = false)
     private LocalDateTime recordedAt;
 
@@ -77,6 +81,14 @@ public class Score {
 
     public void setValue(Double value) {
         this.value = value;
+    }
+
+    public Exam getExam() {
+        return exam;
+    }
+
+    public void setExam(Exam exam) {
+        this.exam = exam;
     }
 
     public LocalDateTime getRecordedAt() {

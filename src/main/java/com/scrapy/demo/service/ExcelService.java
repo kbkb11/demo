@@ -1,9 +1,11 @@
 package com.scrapy.demo.service;
 
 import com.scrapy.demo.domain.Course;
+import com.scrapy.demo.domain.Exam;
 import com.scrapy.demo.domain.Score;
 import com.scrapy.demo.domain.Student;
 import com.scrapy.demo.repository.CourseRepository;
+import com.scrapy.demo.repository.ExamRepository;
 import com.scrapy.demo.repository.ScoreRepository;
 import com.scrapy.demo.repository.StudentRepository;
 import org.apache.poi.ss.usermodel.*;
@@ -25,12 +27,14 @@ public class ExcelService {
 
     private final StudentRepository studentRepository;
     private final CourseRepository courseRepository;
+    private final ExamRepository examRepository;
     private final ScoreRepository scoreRepository;
 
     public ExcelService(StudentRepository studentRepository, CourseRepository courseRepository, 
-                       ScoreRepository scoreRepository) {
+                       ExamRepository examRepository, ScoreRepository scoreRepository) {
         this.studentRepository = studentRepository;
         this.courseRepository = courseRepository;
+        this.examRepository = examRepository;
         this.scoreRepository = scoreRepository;
     }
 
@@ -87,7 +91,7 @@ public class ExcelService {
 
         // 创建表头
         Row headerRow = sheet.createRow(0);
-        String[] headers = {"学号", "学生姓名", "课程名称", "成绩", "记录时间"};
+        String[] headers = {"学号", "学生姓名", "课程名称", "考试名称", "成绩", "记录时间"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -106,8 +110,9 @@ public class ExcelService {
             row.createCell(0).setCellValue(score.getStudent().getStudentNumber());
             row.createCell(1).setCellValue(score.getStudent().getName());
             row.createCell(2).setCellValue(score.getCourse().getName());
-            row.createCell(3).setCellValue(score.getValue());
-            row.createCell(4).setCellValue(score.getRecordedAt() != null ? 
+            row.createCell(3).setCellValue(score.getExam() != null ? score.getExam().getName() : "");
+            row.createCell(4).setCellValue(score.getValue());
+            row.createCell(5).setCellValue(score.getRecordedAt() != null ? 
                     score.getRecordedAt().toString() : "");
         }
 
@@ -190,7 +195,7 @@ public class ExcelService {
 
     /**
      * 导入成绩信息
-     * Excel格式：学号、课程名称、成绩
+     * Excel格式：学号、课程名称、考试名称、成绩
      */
     @Transactional
     public Map<String, Object> importScores(MultipartFile file) throws Exception {
@@ -211,7 +216,8 @@ public class ExcelService {
                     // 读取单元格数据
                     String studentNumber = getCellStringValue(row.getCell(0));
                     String courseName = getCellStringValue(row.getCell(1));
-                    Double scoreValue = getCellDoubleValue(row.getCell(2));
+                    String examName = getCellStringValue(row.getCell(2));
+                    Double scoreValue = getCellDoubleValue(row.getCell(3));
 
                     // 数据验证
                     if (studentNumber == null || studentNumber.isEmpty()) {
@@ -220,6 +226,10 @@ public class ExcelService {
                     }
                     if (courseName == null || courseName.isEmpty()) {
                         errorMessages.add(String.format("第 %d 行：课程名称不能为空", rowNum));
+                        continue;
+                    }
+                    if (examName == null || examName.isEmpty()) {
+                        errorMessages.add(String.format("第 %d 行：考试名称不能为空", rowNum));
                         continue;
                     }
                     if (scoreValue == null || scoreValue < 0 || scoreValue > 100) {
@@ -242,24 +252,31 @@ public class ExcelService {
                         continue;
                     }
 
-                    // 检查是否已存在该学生的该课程成绩
-                    Optional<Score> existingScore = scoreRepository.findByStudentAndCourse(student, course);
+                    Exam exam = examRepository.findByName(examName).orElse(null);
+                    if (exam == null) {
+                        errorMessages.add(String.format("第 %d 行：考试不存在：%s", rowNum, examName));
+                        continue;
+                    }
+
+                    // 检查是否已存在该学生/课程/考试成绩
+                    Optional<Score> existingScore = scoreRepository.findByStudentAndCourseAndExam(student, course, exam);
                     if (existingScore.isPresent()) {
                         // 更新现有成绩
                         Score score = existingScore.get();
                         score.setValue(scoreValue);
                         scoreRepository.save(score);
-                        successMessages.add(String.format("第 %d 行：成绩 %s-%s 已更新", rowNum, 
-                                student.getName(), courseName));
+                        successMessages.add(String.format("第 %d 行：成绩 %s-%s-%s 已更新", rowNum, 
+                                student.getName(), courseName, examName));
                     } else {
                         // 创建新成绩
                         Score score = new Score();
                         score.setStudent(student);
                         score.setCourse(course);
+                        score.setExam(exam);
                         score.setValue(scoreValue);
                         scoreRepository.save(score);
-                        successMessages.add(String.format("第 %d 行：成绩 %s-%s 导入成功", rowNum, 
-                                student.getName(), courseName));
+                        successMessages.add(String.format("第 %d 行：成绩 %s-%s-%s 导入成功", rowNum, 
+                                student.getName(), courseName, examName));
                     }
 
                 } catch (Exception e) {

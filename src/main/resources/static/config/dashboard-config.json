@@ -73,6 +73,20 @@
           "#2563eb"
         ]
       }
+    },
+    {
+      "id": "exam-trend",
+      "title": "考试平均分趋势",
+      "description": "按考试日期排序展示平均分变化。",
+      "endpoint": "/api/analysis/exam-averages",
+      "chart": {
+        "type": "line",
+        "title": "平均分趋势",
+        "dataPath": "",
+        "colors": [
+          "#60a5fa"
+        ]
+      }
     }
   ],
   "tables": [
@@ -123,6 +137,44 @@
         }
       ],
       "limit": 8
+    },
+    {
+      "id": "course-list",
+      "title": "课程信息速览",
+      "description": "展示部分课程的名称、学分与教师。",
+      "endpoint": "/api/courses",
+      "columns": [
+        {
+          "header": "课程",
+          "key": "name"
+        },
+        {
+          "header": "学分",
+          "key": "credit"
+        },
+        {
+          "header": "教师",
+          "key": "teacherName"
+        }
+      ],
+      "limit": 6
+    },
+    {
+      "id": "exam-list",
+      "title": "考试日程速览",
+      "description": "按时间展示近期考试安排。",
+      "endpoint": "/api/exams",
+      "columns": [
+        {
+          "header": "考试名称",
+          "key": "name"
+        },
+        {
+          "header": "日期",
+          "key": "examDate"
+        }
+      ],
+      "limit": 6
     }
   ],
   "lists": [
@@ -133,6 +185,14 @@
       "endpoint": "/api/analysis/pass-rates",
       "valueSuffix": "%",
       "sort": "desc"
+    },
+    {
+      "id": "exam-pass-rate",
+      "title": "各考试及格率",
+      "description": "按考试日期展示及格率趋势。",
+      "endpoint": "/api/analysis/exam-passrates",
+      "valueSuffix": "%",
+      "sort": "none"
     }
   ]
 }

@@ -22,4 +22,9 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
      * 根据专业查找学生
      */
     List<Student> findByMajor(String major);
+
+    /**
+     * 根据姓名查找学生（取首个）
+     */
+    Optional<Student> findFirstByName(String name);
 }

@@ -58,9 +58,18 @@ public class ScoreController {
      * PUT /api/scores/{id}
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Score> updateValue(@PathVariable Long id, @RequestParam Double value) {
+    public ResponseEntity<Score> updateValue(@PathVariable Long id,
+                                             @RequestParam(required = false) Double value,
+                                             @RequestBody(required = false) Score score) {
         try {
-            Score updated = scoreService.updateScoreValue(id, value);
+            Score updated;
+            if (score != null) {
+                updated = scoreService.updateScore(id, score);
+            } else if (value != null) {
+                updated = scoreService.updateScoreValue(id, value);
+            } else {
+                return ResponseEntity.badRequest().build();
+            }
             return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
